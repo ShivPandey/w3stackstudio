@@ -1,118 +1,128 @@
 "use client";
-import Image from "next/image";
+import { useState, useEffect, useRef, useReducer } from "react";
 import Link from "next/link";
-import { useState } from "react";
-import { motion } from "motion/react";
+import Image from "next/image";
+import { Divide as Hamburger } from "hamburger-react";
+
+// dropdown state types
+type DropdownState = string | null;
+
+// action type for reducer
+type DropdownAction = { type: "TOGGLE"; payload: string } | { type: "CLOSE" };
+
+// reducer function for managing the dropdown state
+const dropdownReducer = (state: DropdownState, action: DropdownAction) => {
+  switch (action.type) {
+    case "TOGGLE":
+      return state === action.payload ? null : action.payload;
+    case "CLOSE":
+      return null;
+    default:
+      return state;
+  }
+};
+
 const Navbar = () => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+  console.log("hello");
+  const [openDropdown, dispatch] = useReducer(dropdownReducer, null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  // handle clicks outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event?.target as Node) &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        dispatch({ type: "CLOSE" });
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [openDropdown]);
+  const [isOpen, setOpen] = useState(false);
+  // const navbarHandler = () => {
+  //   setOpen(!isOpen);
+  // };
 
   return (
     <>
-      <header className="fixed w-full z-20 top-0 start-0 backdrop-blur bg-white/30">
-        <nav className="flex justify-between w-full p-4 bg-transparent">
-          {/* Logo Section */}
-          <div className="flex items-center">
-            <Link
-              href="/"
-              onClick={isMobileMenuOpen ? toggleMobileMenu : () => ""}
-            >
-              <Image
-                src="/images/logos/w3-l.png"
-                alt="W3 StackStudio"
-                width={260}
-                height={68}
-              />
-            </Link>
+      <div
+        ref={menuRef}
+        className="navbar fixed z-50 bg-white/80 backdrop-blur-sm justify-between"
+      >
+        <div className="flex-1">
+          <Link href="/" className="relative w-40 h-16 md:w-56 lg:w-64">
+            <Image
+              src="/images/logos/w3-l.png"
+              alt="W3 Stack Studio"
+              fill
+              priority
+              className=" object-contain"
+            />
+          </Link>
+        </div>
+        {/* main navigation */}
+        <div className="flex-none">
+          {/* navigation toggle button */}
+          <div className="flex lg:hidden">
+            <Hamburger toggled={isOpen} toggle={setOpen} />
           </div>
-
-          {/* Desktop Top Banner & Navigation Section */}
-          <div className="hidden md:flex flex-col justify-between">
-            {/* Top Banner */}
-            <div className="flex justify-end items-center py-1">
-              <div className="social-media-icons">
-                <button type="button"></button>
-              </div>
+          <div className="hidden lg:flex lg:flex-col">
+            <div>Top</div>
+            <div className="main-nav">
+              <ul className="nav">
+                <li className="">
+                  <div
+                    onClick={() =>
+                      dispatch({ type: "TOGGLE", payload: "who-we-are" })
+                    }
+                  >
+                    Who we are
+                  </div>
+                </li>
+                <li>
+                  <div
+                    onClick={() =>
+                      dispatch({ type: "TOGGLE", payload: "services" })
+                    }
+                  >
+                    Services
+                  </div>
+                </li>
+                <li>
+                  <Link href="/industries">Industries</Link>
+                </li>
+                <li>
+                  <Link href="/careers">Careers</Link>
+                </li>
+                <li>
+                  <Link href="/contact">Contact</Link>
+                </li>
+              </ul>
             </div>
-
-            {/* Navigation Menu */}
-            <ul className="flex justify-end items-center">
-              <li>
-                <Link href="/services" className="navbar-link">
-                  Services
-                </Link>
-              </li>
-              <li>
-                <Link href="/portfolio" className="navbar-link">
-                  Portfolio
-                </Link>
-              </li>
-              <li>
-                <Link href="/about" className="navbar-link">
-                  About
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="navbar-link">
-                  Contact
-                </Link>
-              </li>
-              <li>
-                <Link href="/blog" className="navbar-link">
-                  Blog
-                </Link>
-              </li>
-            </ul>
           </div>
-          {/* Mobile Top Banner & Navigation Section */}
-          <span className="flex md:hidden items-center">
-            <button
-              onClick={toggleMobileMenu}
-              className="md:hidden p-2 text-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400"
-              aria-label="Toggle Menu"
-            >
-              <svg
-                className="w-6 h-6"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 6h16M4 12h16m-7 6h7"
-                />
-              </svg>
-            </button>
-          </span>
-        </nav>
-        <motion.div
-          initial={{ height: 0 }}
-          animate={{ height: isMobileMenuOpen ? "auto" : 0 }}
-          transition={{ type: "spring", stiffness: 200, damping: 20 }}
-          className="overflow-hidden md:hidden"
-        >
-          <nav className="flex flex-col items-center space-y-4 p-4">
-            <Link href="/services" onClick={toggleMobileMenu}>
-              Services
-            </Link>
-            <Link href="/portfolio" onClick={toggleMobileMenu}>
-              Portfolio
-            </Link>
-            <Link href="/about" onClick={toggleMobileMenu}>
-              About
-            </Link>
-            <Link href="/contact" onClick={toggleMobileMenu}>
-              Contact
-            </Link>
-            <Link href="/blog" onClick={toggleMobileMenu}>
-              Blog
-            </Link>
-          </nav>
-        </motion.div>
-      </header>
+        </div>
+      </div>
+      {/* dropdown */}
+      {openDropdown === "who-we-are" && (
+        <div ref={dropdownRef} className="dropdown-container h-40">
+          Who we are
+        </div>
+      )}
+      {openDropdown === "services" && (
+        <div ref={dropdownRef} className="dropdown-container h-40">
+          Services
+        </div>
+      )}
+      {openDropdown === "industries" && (
+        <div ref={dropdownRef} className="dropdown-container h-40">
+          Industries
+        </div>
+      )}
     </>
   );
 };

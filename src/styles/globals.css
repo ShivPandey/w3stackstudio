@@ -3,22 +3,17 @@
 @tailwind utilities;
 
 /* globals.css */
-body{
-  @apply bg-sb-cream
-}
+
 /* Navbar */
-.navbar {
-}
-.navbar-link {
-  @apply px-4 py-2;
-}
-
-/* Hero section */
-.hero-section{
-  
+.navbar .nav {
+  list-style: none;
+  display: flex;
 }
 
-/* Footer */
-.footer{
-    @apply border-b-8 border-[#C5382B];
+.navbar .nav > li {
+  position: relative;
+}
+
+.dropdown-container {
+  @apply fixed top-20 w-full z-40 bg-white/80 backdrop-blur-sm;
 }

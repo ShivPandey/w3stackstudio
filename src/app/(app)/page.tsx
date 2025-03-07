@@ -1,15 +1,12 @@
 "use client";
-
-import AppStudio from '@/components/sections/AppStudio';
-import Hero from '@/components/sections/Hero';
-import WebStudio from '@/components/sections/WebStudio';
+import Hero from "@/components/sections/Hero";
 
 const Home = () => {
   return (
     <>
       <Hero />
-      <WebStudio />
-      <AppStudio />
+      <div className=" min-h-lvh bg-yellow-500"></div>
+      <div className=" min-h-lvh"></div>
     </>
   );
 };
